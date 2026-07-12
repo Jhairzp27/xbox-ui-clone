@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import {
   StatusBar,
   StyleSheet,
-  Text,
   View,
   Pressable,
   Image,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from './src/theme/colors';
-import { USER_PROFILE } from './src/data/mockData';
+import { USER_PROFILE as initialProfile } from './src/data/mockData';
 
 // Screens
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -22,21 +21,30 @@ type Tab = 'Home' | 'Social' | 'Library' | 'Store' | 'Profile';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<Tab>('Home');
+  
+  // Shared user profile state for live MVP updates
+  const [userData, setUserData] = useState(initialProfile);
 
   const renderActiveScreen = () => {
     switch (activeTab) {
       case 'Home':
-        return <HomeScreen />;
+        return <HomeScreen onNavigate={setActiveTab} userData={userData} />;
       case 'Social':
-        return <SocialScreen />;
+        return <SocialScreen userData={userData} />;
       case 'Library':
         return <LibraryScreen />;
       case 'Store':
-        return <StoreScreen />;
+        return <StoreScreen userData={userData} />;
       case 'Profile':
-        return <ProfileScreen />;
+        return (
+          <ProfileScreen
+            onNavigate={setActiveTab}
+            userData={userData}
+            setUserData={setUserData}
+          />
+        );
       default:
-        return <HomeScreen />;
+        return <HomeScreen onNavigate={setActiveTab} userData={userData} />;
     }
   };
 
@@ -56,9 +64,13 @@ function AppContent() {
           style={styles.tabItem}
           onPress={() => setActiveTab('Home')}
         >
-          <Text style={[styles.tabIcon, activeTab === 'Home' ? styles.tabIconActive : null]}>
-            🏠
-          </Text>
+          <Image
+            source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/home.png' }}
+            style={[
+              styles.tabIcon,
+              { tintColor: activeTab === 'Home' ? COLORS.xboxGreen : COLORS.textSecondary },
+            ]}
+          />
           {activeTab === 'Home' && <View style={styles.tabDotActive} />}
         </Pressable>
 
@@ -68,9 +80,13 @@ function AppContent() {
           onPress={() => setActiveTab('Social')}
         >
           <View style={styles.iconBadgeWrapper}>
-            <Text style={[styles.tabIcon, activeTab === 'Social' ? styles.tabIconActive : null]}>
-              👥
-            </Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/group.png' }}
+              style={[
+                styles.tabIcon,
+                { tintColor: activeTab === 'Social' ? COLORS.xboxGreen : COLORS.textSecondary },
+              ]}
+            />
             {/* Green Badge for pending requests */}
             <View style={styles.notifBadge}>
               <Text style={styles.notifBadgeText}>1</Text>
@@ -84,9 +100,13 @@ function AppContent() {
           style={styles.tabItem}
           onPress={() => setActiveTab('Library')}
         >
-          <Text style={[styles.tabIcon, activeTab === 'Library' ? styles.tabIconActive : null]}>
-            📚
-          </Text>
+          <Image
+            source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/books.png' }}
+            style={[
+              styles.tabIcon,
+              { tintColor: activeTab === 'Library' ? COLORS.xboxGreen : COLORS.textSecondary },
+            ]}
+          />
           {activeTab === 'Library' && <View style={styles.tabDotActive} />}
         </Pressable>
 
@@ -95,19 +115,23 @@ function AppContent() {
           style={styles.tabItem}
           onPress={() => setActiveTab('Store')}
         >
-          <Text style={[styles.tabIcon, activeTab === 'Store' ? styles.tabIconActive : null]}>
-            🛍️
-          </Text>
+          <Image
+            source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/shopping-bag.png' }}
+            style={[
+              styles.tabIcon,
+              { tintColor: activeTab === 'Store' ? COLORS.xboxGreen : COLORS.textSecondary },
+            ]}
+          />
           {activeTab === 'Store' && <View style={styles.tabDotActive} />}
         </Pressable>
 
-        {/* Tab 5: Profile (Circular Mascot representation) */}
+        {/* Tab 5: Profile (Circular Mascot) */}
         <Pressable
           style={styles.tabItem}
           onPress={() => setActiveTab('Profile')}
         >
           <Image
-            source={{ uri: USER_PROFILE.avatarUrl }}
+            source={{ uri: userData.avatarUrl }}
             style={[
               styles.profileTabIcon,
               activeTab === 'Profile' ? styles.profileTabIconActive : null,
@@ -119,6 +143,10 @@ function AppContent() {
     </SafeAreaView>
   );
 }
+
+// Inline fallback for Text since it's used inside subcomponents but not explicitly in parent except for badge text.
+// Adding React Native Text to imports.
+import { Text } from 'react-native';
 
 export default function App() {
   return (
@@ -153,12 +181,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   tabIcon: {
-    fontSize: 20,
-    color: COLORS.white,
-    opacity: 0.45,
-  },
-  tabIconActive: {
-    opacity: 1.0,
+    width: 24,
+    height: 24,
   },
   iconBadgeWrapper: {
     position: 'relative',
@@ -185,12 +209,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#555',
-    opacity: 0.55,
   },
   profileTabIconActive: {
     borderColor: COLORS.xboxGreen,
     borderWidth: 2,
-    opacity: 1.0,
   },
   tabDotActive: {
     position: 'absolute',

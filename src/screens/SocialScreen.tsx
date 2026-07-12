@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { COLORS } from '../theme/colors';
 import {
@@ -19,7 +20,11 @@ import {
 
 type SubTab = 'friends' | 'parties' | 'chats';
 
-export const SocialScreen: React.FC = () => {
+interface SocialScreenProps {
+  userData: typeof USER_PROFILE;
+}
+
+export const SocialScreen: React.FC<SocialScreenProps> = ({ userData }) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('friends');
   const [suggestions, setSuggestions] = useState<Friend[]>(SUGGESTED_FRIENDS);
 
@@ -27,9 +32,14 @@ export const SocialScreen: React.FC = () => {
     setSuggestions(prev => prev.filter(item => item.id !== id));
   };
 
-  const handleAddFriend = (gamertag: string) => {
-    // Simulated add action
-    alert(`Friend request sent to ${gamertag}!`);
+  const handleAddFriend = (friend: Friend) => {
+    Alert.alert(
+      'Friend Added',
+      `Sent friend request to ${friend.gamertag}! they have been added to your friends list.`,
+      [{ text: 'Great' }]
+    );
+    // Remove from suggestions
+    handleRemoveSuggestion(friend.id);
   };
 
   const renderFriendsContent = () => {
@@ -59,7 +69,10 @@ export const SocialScreen: React.FC = () => {
               <Image source={{ uri: friend.avatarUrl }} style={styles.friendAvatar} />
               {friend.isFavorite && (
                 <View style={styles.favBadgeSmall}>
-                  <Text style={styles.favStarSmall}>⭐</Text>
+                  <Image
+                    source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/star.png' }}
+                    style={styles.starIconSmall}
+                  />
                 </View>
               )}
             </View>
@@ -109,8 +122,10 @@ export const SocialScreen: React.FC = () => {
         <Pressable style={styles.socialSyncButton}>
           <View style={styles.socialSyncLeft}>
             <View style={styles.steamIconContainer}>
-              {/* Steam logo representation */}
-              <Text style={styles.steamLogo}>🎮</Text>
+              <Image
+                source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/steam.png' }}
+                style={styles.steamIcon}
+              />
             </View>
             <Text style={styles.socialSyncText}>
               Find more friends from your social networks
@@ -136,16 +151,22 @@ export const SocialScreen: React.FC = () => {
               <View style={styles.suggestActions}>
                 <Pressable
                   style={styles.addButton}
-                  onPress={() => handleAddFriend(suggest.gamertag)}
+                  onPress={() => handleAddFriend(suggest)}
                 >
-                  <Text style={styles.addButtonIcon}>➕</Text>
+                  <Image
+                    source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/plus.png' }}
+                    style={styles.addButtonIcon}
+                  />
                 </Pressable>
                 
                 <Pressable
                   style={styles.dismissButton}
                   onPress={() => handleRemoveSuggestion(suggest.id)}
                 >
-                  <Text style={styles.dismissButtonIcon}>✕</Text>
+                  <Image
+                    source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/cancel.png' }}
+                    style={styles.dismissButtonIcon}
+                  />
                 </Pressable>
               </View>
             </View>
@@ -163,7 +184,10 @@ export const SocialScreen: React.FC = () => {
       data={CHATS_DATA}
       keyExtractor={item => item.id}
       renderItem={({ item }) => (
-        <Pressable style={styles.chatRow}>
+        <Pressable 
+          style={styles.chatRow}
+          onPress={() => Alert.alert('Chat Active', `Opening chat with ${item.gamertag}...`)}
+        >
           <Image source={{ uri: item.avatarUrl }} style={styles.chatAvatar} />
           <View style={styles.chatInfo}>
             <View style={styles.chatHeader}>
@@ -189,15 +213,21 @@ export const SocialScreen: React.FC = () => {
       {/* Header matching Screenshot 3 */}
       <View style={styles.mainHeader}>
         <View style={styles.headerTitleContainer}>
-          <Image source={{ uri: USER_PROFILE.avatarUrl }} style={styles.headerGamerpic} />
+          <Image source={{ uri: userData.avatarUrl }} style={styles.headerGamerpic} />
           <Text style={styles.headerTitle}>Social</Text>
         </View>
         <View style={styles.headerIcons}>
           <Pressable style={styles.headerIcon}>
-            <Text style={styles.headerIconText}>➕</Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/plus.png' }}
+              style={styles.headerIconImage}
+            />
           </Pressable>
           <Pressable style={styles.headerIcon}>
-            <Text style={styles.headerIconText}>🔍</Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/search.png' }}
+              style={styles.headerIconImage}
+            />
           </Pressable>
         </View>
       </View>
@@ -238,7 +268,10 @@ export const SocialScreen: React.FC = () => {
       {activeSubTab === 'parties' && (
         <View style={styles.emptyPartiesContainer}>
           <Text style={styles.emptyPartiesText}>No active parties.</Text>
-          <Pressable style={styles.startPartyButton}>
+          <Pressable 
+            style={styles.startPartyButton}
+            onPress={() => Alert.alert('Party Started', 'Created a new party! Invite your friends.')}
+          >
             <Text style={styles.startPartyButtonText}>Start a Party</Text>
           </Pressable>
         </View>
@@ -289,9 +322,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerIconText: {
-    color: COLORS.white,
-    fontSize: 14,
+  headerIconImage: {
+    width: 14,
+    height: 14,
+    tintColor: COLORS.white,
   },
   subTabsContainer: {
     flexDirection: 'row',
@@ -399,8 +433,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#444',
   },
-  favStarSmall: {
-    fontSize: 8,
+  starIconSmall: {
+    width: 9,
+    height: 9,
+    tintColor: '#FEB800',
   },
   statusDot: {
     position: 'absolute',
@@ -459,8 +495,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  steamLogo: {
-    fontSize: 14,
+  steamIcon: {
+    width: 16,
+    height: 16,
+    tintColor: COLORS.white,
   },
   socialSyncText: {
     color: COLORS.white,
@@ -518,8 +556,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   addButtonIcon: {
-    color: COLORS.white,
-    fontSize: 12,
+    width: 14,
+    height: 14,
+    tintColor: COLORS.white,
   },
   dismissButton: {
     backgroundColor: COLORS.cardBackground,
@@ -532,8 +571,9 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   dismissButtonIcon: {
-    color: COLORS.textSecondary,
-    fontSize: 10,
+    width: 10,
+    height: 10,
+    tintColor: COLORS.textSecondary,
   },
 
   // Chats View Styling

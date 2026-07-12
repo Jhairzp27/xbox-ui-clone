@@ -7,7 +7,6 @@ import {
   Image,
   FlatList,
   Pressable,
-  TextInput,
 } from 'react-native';
 import { COLORS } from '../theme/colors';
 import {
@@ -15,11 +14,15 @@ import {
   FRIENDS_DATA,
   OFFICIAL_PUBLISHERS,
   USER_PROFILE,
-  Game,
 } from '../data/mockData';
 import { GameCardItem } from '../components/GameCardItem';
 
-export const HomeScreen: React.FC = () => {
+interface HomeScreenProps {
+  onNavigate: (tab: 'Home' | 'Social' | 'Library' | 'Store' | 'Profile') => void;
+  userData: typeof USER_PROFILE;
+}
+
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userData }) => {
   // Sort friends to show favorites first
   const activeFriends = FRIENDS_DATA.filter(f => f.isFavorite);
 
@@ -39,7 +42,10 @@ export const HomeScreen: React.FC = () => {
         <Image source={{ uri: item.avatarUrl }} style={styles.friendCardAvatar} />
         {item.isFavorite && (
           <View style={styles.favoriteBadge}>
-            <Text style={styles.favoriteStar}>⭐</Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/star.png' }}
+              style={styles.favoriteStarIcon}
+            />
           </View>
         )}
       </View>
@@ -57,30 +63,39 @@ export const HomeScreen: React.FC = () => {
       
       {/* 1. Header matching Screenshot 1 & 2 */}
       <View style={styles.header}>
-        <View style={styles.profileSummary}>
-          <Image source={{ uri: USER_PROFILE.avatarUrl }} style={styles.topAvatar} />
+        <Pressable 
+          style={styles.profileSummary}
+          onPress={() => onNavigate('Profile')}
+        >
+          <Image source={{ uri: userData.avatarUrl }} style={styles.topAvatar} />
           <View style={styles.profileTexts}>
             <View style={styles.gamertagRow}>
-              <Text style={styles.topGamertag}>{USER_PROFILE.gamertag}</Text>
+              <Text style={styles.topGamertag}>{userData.gamertag}</Text>
               <View style={styles.ultimateBadge}>
-                <Text style={styles.ultimateBadgeText}>{USER_PROFILE.tier}</Text>
+                <Text style={styles.ultimateBadgeText}>{userData.tier}</Text>
               </View>
             </View>
             <View style={styles.scoreRow}>
               <View style={styles.gLogoContainer}>
                 <Text style={styles.gLogoText}>G</Text>
               </View>
-              <Text style={styles.scoreValue}>{USER_PROFILE.gamerscore}</Text>
+              <Text style={styles.scoreValue}>{userData.gamerscore}</Text>
             </View>
           </View>
-        </View>
+        </Pressable>
 
         <View style={styles.headerIcons}>
           <Pressable style={styles.headerIconButton}>
-            <Text style={styles.headerIconEmoji}>📱</Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/xbox.png' }}
+              style={styles.headerIconImage}
+            />
           </Pressable>
           <Pressable style={styles.headerIconButton}>
-            <Text style={styles.headerIconEmoji}>🔔</Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/alarm.png' }}
+              style={styles.headerIconImage}
+            />
             <View style={styles.notifBadge}>
               <Text style={styles.notifBadgeText}>11</Text>
             </View>
@@ -88,18 +103,21 @@ export const HomeScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* 2. Search Capsule matching Screenshot 1 */}
-      <View style={styles.searchSection}>
+      {/* 2. Search Capsule matching Screenshot 1 - Tapping navigates to Library Search */}
+      <Pressable 
+        style={styles.searchSection}
+        onPress={() => onNavigate('Library')}
+      >
         <View style={styles.searchCapsule}>
-          <Text style={styles.searchIcon}>🔍</Text>
-          <TextInput
-            placeholder="Search for games, people, and more"
-            placeholderTextColor={COLORS.textSecondary}
-            style={styles.searchInput}
-            editable={false} // Presentation capsule
+          <Image
+            source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/search.png' }}
+            style={styles.searchIconImage}
           />
+          <Text style={styles.searchPlaceholderText}>
+            Search for games, people, and more
+          </Text>
         </View>
-      </View>
+      </Pressable>
 
       {/* 3. Featured Card (Assassin's Creed IV) matching Screenshot 1 */}
       <View style={styles.featuredContainer}>
@@ -117,7 +135,7 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Active friends</Text>
-          <Pressable>
+          <Pressable onPress={() => onNavigate('Social')}>
             <Text style={styles.seeAllText}>See all</Text>
           </Pressable>
         </View>
@@ -144,7 +162,7 @@ export const HomeScreen: React.FC = () => {
               game={item}
               width={105}
               height={140}
-              showDetailsBelow={false} // Covers only, as in Screenshot 2
+              showDetailsBelow={false} // Covers only
             />
           )}
           contentContainerStyle={styles.horizontalList}
@@ -289,9 +307,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  headerIconEmoji: {
-    fontSize: 16,
-    color: COLORS.white,
+  headerIconImage: {
+    width: 18,
+    height: 18,
+    tintColor: COLORS.white,
   },
   notifBadge: {
     position: 'absolute',
@@ -324,16 +343,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2D2D2D',
   },
-  searchIcon: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
+  searchIconImage: {
+    width: 14,
+    height: 14,
+    tintColor: COLORS.textSecondary,
   },
-  searchInput: {
-    flex: 1,
-    color: COLORS.white,
+  searchPlaceholderText: {
+    color: COLORS.textSecondary,
     fontSize: 13,
-    marginLeft: 8,
-    padding: 0,
+    marginLeft: 10,
   },
   featuredContainer: {
     marginHorizontal: 16,
@@ -426,8 +444,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#444',
   },
-  favoriteStar: {
-    fontSize: 9,
+  favoriteStarIcon: {
+    width: 10,
+    height: 10,
+    tintColor: '#FEB800',
   },
   friendCardGamertag: {
     color: COLORS.white,

@@ -12,21 +12,31 @@ import { COLORS } from '../theme/colors';
 import { STORE_DEALS_DATA, STORE_NEW_DATA, USER_PROFILE } from '../data/mockData';
 import { GameCardItem } from '../components/GameCardItem';
 
-export const StoreScreen: React.FC = () => {
+interface StoreScreenProps {
+  userData: typeof USER_PROFILE;
+}
+
+export const StoreScreen: React.FC<StoreScreenProps> = ({ userData }) => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header matching Screenshot 4 */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Image source={{ uri: USER_PROFILE.avatarUrl }} style={styles.gamerpic} />
+          <Image source={{ uri: userData.avatarUrl }} style={styles.gamerpic} />
           <Text style={styles.headerTitle}>Store</Text>
         </View>
         <View style={styles.headerIcons}>
           <Pressable style={styles.iconButton}>
-            <Text style={styles.iconText}>❤️</Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/like.png' }}
+              style={styles.headerIconImage}
+            />
           </Pressable>
           <Pressable style={styles.iconButton}>
-            <Text style={styles.iconText}>🔍</Text>
+            <Image
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/search.png' }}
+              style={styles.headerIconImage}
+            />
           </Pressable>
         </View>
       </View>
@@ -139,9 +149,10 @@ const styles = StyleSheet.create({
     marginLeft: 18,
     padding: 2,
   },
-  iconText: {
-    fontSize: 18,
-    color: COLORS.white,
+  headerIconImage: {
+    width: 18,
+    height: 18,
+    tintColor: COLORS.white,
   },
   featuredContainer: {
     marginHorizontal: 16,

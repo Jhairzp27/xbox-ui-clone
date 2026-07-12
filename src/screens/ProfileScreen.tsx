@@ -6,15 +6,53 @@ import {
   Image,
   ScrollView,
   Pressable,
+  Modal,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { COLORS } from '../theme/colors';
 import { USER_PROFILE } from '../data/mockData';
 
 type ProfileTab = 'posts' | 'achievements' | 'about';
 
-export const ProfileScreen: React.FC = () => {
+interface ProfileScreenProps {
+  onNavigate: (tab: 'Home' | 'Social' | 'Library' | 'Store' | 'Profile') => void;
+  userData: typeof USER_PROFILE;
+  setUserData: React.Dispatch<React.SetStateAction<typeof USER_PROFILE>>;
+}
+
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({
+  onNavigate,
+  userData,
+  setUserData,
+}) => {
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts');
   const [statusState, setStatusState] = useState<'offline' | 'online'>('offline');
+  
+  // Settings Modal State
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const [tempGamertag, setTempGamertag] = useState(userData.gamertag);
+  const [tempGamerscore, setTempGamerscore] = useState(userData.gamerscore.toString());
+
+  const handleSaveSettings = () => {
+    const parsedScore = parseInt(tempGamerscore, 10);
+    if (!tempGamertag.trim()) {
+      Alert.alert('Validation Error', 'Gamertag cannot be empty.');
+      return;
+    }
+    if (isNaN(parsedScore)) {
+      Alert.alert('Validation Error', 'Gamerscore must be a number.');
+      return;
+    }
+
+    setUserData(prev => ({
+      ...prev,
+      gamertag: tempGamertag,
+      gamerscore: parsedScore,
+    }));
+    setSettingsVisible(false);
+    Alert.alert('Profile Saved', 'Your Xbox profile details have been updated.');
+  };
 
   const renderPosts = () => (
     <View style={styles.postsList}>
@@ -23,10 +61,10 @@ export const ProfileScreen: React.FC = () => {
         {/* Post Author Row */}
         <View style={styles.authorRow}>
           <View style={styles.authorLeft}>
-            <Image source={{ uri: USER_PROFILE.avatarUrl }} style={styles.authorAvatar} />
+            <Image source={{ uri: userData.avatarUrl }} style={styles.authorAvatar} />
             <View style={styles.authorInfo}>
               <View style={styles.gamertagVerifiedRow}>
-                <Text style={styles.authorGamertag}>{USER_PROFILE.gamertag}</Text>
+                <Text style={styles.authorGamertag}>{userData.gamertag}</Text>
                 <View style={styles.greenVerifyCheck}>
                   <Text style={styles.verifyCheckText}>✓</Text>
                 </View>
@@ -42,7 +80,6 @@ export const ProfileScreen: React.FC = () => {
         <View style={styles.achievementUnlockCard}>
           {/* Top layout with Gamerscore G 30 badge */}
           <View style={styles.achievementGraphicContainer}>
-            {/* Custom decoration for achievement graphic */}
             <View style={styles.graphicOverlay} />
             <View style={styles.gBadgeContainer}>
               <Text style={styles.gBadgeLetter}>G</Text>
@@ -77,129 +114,209 @@ export const ProfileScreen: React.FC = () => {
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Backdrop Header matching Screenshot 5 */}
-      <View style={styles.backdropContainer}>
-        {/* Banner with mascot image */}
-        <Image
-          source={{ uri: USER_PROFILE.avatarUrl }}
-          style={styles.backdropImage}
-        />
-        <View style={styles.backdropOverlay} />
-        
-        {/* Back and Settings Header */}
-        <View style={styles.navBar}>
-          <Pressable style={styles.navButton}>
-            <Text style={styles.navButtonText}>❮</Text>
-          </Pressable>
-          <Text style={styles.headerTitle}>{USER_PROFILE.gamertag}</Text>
-          <Pressable style={styles.navButton}>
-            <Text style={styles.navButtonText}>⚙️</Text>
-          </Pressable>
-        </View>
-
-        {/* Profile Card Overlay details */}
-        <View style={styles.profileDetails}>
-          <View style={styles.avatarWrapper}>
-            <Image source={{ uri: USER_PROFILE.avatarUrl }} style={styles.gamerpic} />
-            <View style={styles.editPencilBadge}>
-              <Text style={styles.pencilEmoji}>✏️</Text>
-            </View>
-            <View style={styles.verifiedCheckBadge}>
-              <Text style={styles.checkText}>✓</Text>
-            </View>
-          </View>
-
-          {/* Gamertag name & status indicator */}
-          <View style={styles.gamertagWrapper}>
-            <Text style={styles.gamertagText}>{USER_PROFILE.gamertag}</Text>
-            <View style={styles.greenVerifyCheckBig}>
-              <Text style={styles.verifyCheckTextBig}>✓</Text>
-            </View>
-          </View>
-          <Text style={styles.subtitleText}>Xbox App</Text>
-
-          {/* Link Social Accounts */}
-          <Pressable style={styles.socialLinkButton}>
-            <Text style={styles.socialLinkButtonText}>➕ Link social accounts</Text>
-          </Pressable>
-
-          {/* Stats count row (Friends, Following, Followers) */}
-          <View style={styles.statsRow}>
-            <Pressable style={styles.statCol}>
-              <Text style={styles.statNum}>{USER_PROFILE.friendsCount}</Text>
-              <Text style={styles.statLabel}>Friends ❯</Text>
-            </Pressable>
-            <Pressable style={styles.statCol}>
-              <Text style={styles.statNum}>{USER_PROFILE.followingCount}</Text>
-              <Text style={styles.statLabel}>Following ❯</Text>
-            </Pressable>
-            <Pressable style={styles.statCol}>
-              <Text style={styles.statNum}>{USER_PROFILE.followersCount}</Text>
-              <Text style={styles.statLabel}>Followers ❯</Text>
-            </Pressable>
-          </View>
-
-          {/* Status selection buttons */}
-          <View style={styles.statusButtonsContainer}>
-            <Pressable
-              style={styles.statusPrimaryButton}
-              onPress={() => setStatusState(statusState === 'offline' ? 'online' : 'offline')}
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Backdrop Header matching Screenshot 5 */}
+        <View style={styles.backdropContainer}>
+          {/* Banner with mascot image */}
+          <Image
+            source={{ uri: userData.avatarUrl }}
+            style={styles.backdropImage}
+          />
+          <View style={styles.backdropOverlay} />
+          
+          {/* Back and Settings Header */}
+          <View style={styles.navBar}>
+            <Pressable 
+              style={styles.navButton}
+              onPress={() => onNavigate('Home')}
             >
-              <Text style={styles.statusPrimaryButtonText}>
-                {statusState === 'offline' ? 'Appear offline' : 'Appear online'}
-              </Text>
+              <Image
+                source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/left.png' }}
+                style={styles.navIconImage}
+              />
             </Pressable>
-            <Pressable style={styles.statusDotsButton}>
-              <Text style={styles.statusDotsText}>•••</Text>
+            <Text style={styles.headerTitle}>{userData.gamertag}</Text>
+            <Pressable 
+              style={styles.navButton}
+              onPress={() => {
+                setTempGamertag(userData.gamertag);
+                setTempGamerscore(userData.gamerscore.toString());
+                setSettingsVisible(true);
+              }}
+            >
+              <Image
+                source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/settings.png' }}
+                style={styles.navIconImage}
+              />
             </Pressable>
           </View>
-        </View>
-      </View>
 
-      {/* Tabs list matching Screenshot 5 */}
-      <View style={styles.tabsContainer}>
-        <Pressable
-          style={[styles.tab, activeTab === 'posts' && styles.tabActive]}
-          onPress={() => setActiveTab('posts')}
-        >
-          <Text style={[styles.tabLabel, activeTab === 'posts' && styles.tabLabelActive]}>
-            Posts
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[styles.tab, activeTab === 'achievements' && styles.tabActive]}
-          onPress={() => setActiveTab('achievements')}
-        >
-          <Text style={[styles.tabLabel, activeTab === 'achievements' && styles.tabLabelActive]}>
-            Achievements
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[styles.tab, activeTab === 'about' && styles.tabActive]}
-          onPress={() => setActiveTab('about')}
-        >
-          <Text style={[styles.tabLabel, activeTab === 'about' && styles.tabLabelActive]}>
-            About
-          </Text>
-        </Pressable>
-      </View>
+          {/* Profile Card Overlay details */}
+          <View style={styles.profileDetails}>
+            <View style={styles.avatarWrapper}>
+              <Image source={{ uri: userData.avatarUrl }} style={styles.gamerpic} />
+              <View style={styles.editPencilBadge}>
+                <Image
+                  source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/edit.png' }}
+                  style={styles.pencilIcon}
+                />
+              </View>
+              <View style={styles.verifiedCheckBadge}>
+                <Text style={styles.checkText}>✓</Text>
+              </View>
+            </View>
 
-      {/* Conditional rendering of tabs content */}
-      {activeTab === 'posts' && renderPosts()}
-      
-      {activeTab === 'achievements' && (
-        <View style={styles.achievementsPlaceholder}>
-          <Text style={styles.placeholderText}>Total Gamerscore: 6,950 G</Text>
-        </View>
-      )}
+            {/* Gamertag name & status indicator */}
+            <View style={styles.gamertagWrapper}>
+              <Text style={styles.gamertagText}>{userData.gamertag}</Text>
+              <View style={styles.greenVerifyCheckBig}>
+                <Text style={styles.verifyCheckTextBig}>✓</Text>
+              </View>
+            </View>
+            <Text style={styles.subtitleText}>Xbox App</Text>
 
-      {activeTab === 'about' && (
-        <View style={styles.aboutPlaceholder}>
-          <Text style={styles.placeholderText}>Xbox Live Member since 2020.</Text>
+            {/* Link Social Accounts */}
+            <Pressable 
+              style={styles.socialLinkButton}
+              onPress={() => Alert.alert('Social Integration', 'Linking social accounts accounts...')}
+            >
+              <Text style={styles.socialLinkButtonText}>➕ Link social accounts</Text>
+            </Pressable>
+
+            {/* Stats count row (Friends, Following, Followers) */}
+            <View style={styles.statsRow}>
+              <Pressable style={styles.statCol} onPress={() => onNavigate('Social')}>
+                <Text style={styles.statNum}>{userData.friendsCount}</Text>
+                <Text style={styles.statLabel}>Friends ❯</Text>
+              </Pressable>
+              <Pressable style={styles.statCol}>
+                <Text style={styles.statNum}>{userData.followingCount}</Text>
+                <Text style={styles.statLabel}>Following ❯</Text>
+              </Pressable>
+              <Pressable style={styles.statCol}>
+                <Text style={styles.statNum}>{userData.followersCount}</Text>
+                <Text style={styles.statLabel}>Followers ❯</Text>
+              </Pressable>
+            </View>
+
+            {/* Status selection buttons */}
+            <View style={styles.statusButtonsContainer}>
+              <Pressable
+                style={styles.statusPrimaryButton}
+                onPress={() => setStatusState(statusState === 'offline' ? 'online' : 'offline')}
+              >
+                <Text style={styles.statusPrimaryButtonText}>
+                  {statusState === 'offline' ? 'Appear offline' : 'Appear online'}
+                </Text>
+              </Pressable>
+              <Pressable 
+                style={styles.statusDotsButton}
+                onPress={() => Alert.alert('More Options', 'Opening profile context menu...')}
+              >
+                <Text style={styles.statusDotsText}>•••</Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
-      )}
-    </ScrollView>
+
+        {/* Tabs list matching Screenshot 5 */}
+        <View style={styles.tabsContainer}>
+          <Pressable
+            style={[styles.tab, activeTab === 'posts' && styles.tabActive]}
+            onPress={() => setActiveTab('posts')}
+          >
+            <Text style={[styles.tabLabel, activeTab === 'posts' && styles.tabLabelActive]}>
+              Posts
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.tab, activeTab === 'achievements' && styles.tabActive]}
+            onPress={() => setActiveTab('achievements')}
+          >
+            <Text style={[styles.tabLabel, activeTab === 'achievements' && styles.tabLabelActive]}>
+              Achievements
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.tab, activeTab === 'about' && styles.tabActive]}
+            onPress={() => setActiveTab('about')}
+          >
+            <Text style={[styles.tabLabel, activeTab === 'about' && styles.tabLabelActive]}>
+              About
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Conditional rendering of tabs content */}
+        {activeTab === 'posts' && renderPosts()}
+        
+        {activeTab === 'achievements' && (
+          <View style={styles.achievementsPlaceholder}>
+            <Text style={styles.placeholderText}>Total Gamerscore: {userData.gamerscore} G</Text>
+          </View>
+        )}
+
+        {activeTab === 'about' && (
+          <View style={styles.aboutPlaceholder}>
+            <Text style={styles.placeholderText}>Xbox Live Member since 2020.</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Settings Modal (MVP Feature) */}
+      <Modal
+        visible={settingsVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSettingsVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Settings (Customize Profile)</Text>
+            
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Gamertag</Text>
+              <TextInput
+                style={styles.textInput}
+                value={tempGamertag}
+                onChangeText={setTempGamertag}
+                placeholder="Enter gamertag"
+                placeholderTextColor={COLORS.textSecondary}
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Gamerscore</Text>
+              <TextInput
+                style={styles.textInput}
+                value={tempGamerscore}
+                onChangeText={setTempGamerscore}
+                keyboardType="numeric"
+                placeholder="Enter gamerscore"
+                placeholderTextColor={COLORS.textSecondary}
+              />
+            </View>
+
+            <View style={styles.modalButtonsRow}>
+              <Pressable
+                style={[styles.modalBtn, styles.modalBtnCancel]}
+                onPress={() => setSettingsVisible(false)}
+              >
+                <Text style={styles.modalBtnTextCancel}>Cancel</Text>
+              </Pressable>
+              
+              <Pressable
+                style={[styles.modalBtn, styles.modalBtnSave]}
+                onPress={handleSaveSettings}
+              >
+                <Text style={styles.modalBtnTextSave}>Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
@@ -245,9 +362,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  navButtonText: {
-    color: COLORS.white,
-    fontSize: 14,
+  navIconImage: {
+    width: 14,
+    height: 14,
+    tintColor: COLORS.white,
   },
   headerTitle: {
     color: COLORS.white,
@@ -284,8 +402,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: COLORS.background,
   },
-  pencilEmoji: {
-    fontSize: 11,
+  pencilIcon: {
+    width: 11,
+    height: 11,
+    tintColor: COLORS.white,
   },
   verifiedCheckBadge: {
     position: 'absolute',
@@ -498,7 +618,7 @@ const styles = StyleSheet.create({
   },
   graphicOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(16, 124, 16, 0.1)', // Light Xbox Green overlay for decoration
+    backgroundColor: 'rgba(16, 124, 16, 0.1)',
   },
   gBadgeContainer: {
     flexDirection: 'row',
@@ -566,5 +686,72 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: COLORS.textSecondary,
     fontSize: 13,
+  },
+
+  // Modal Styling for Settings
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 12,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  modalTitle: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  textInput: {
+    backgroundColor: COLORS.background,
+    color: COLORS.white,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  modalBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalBtnCancel: {
+    backgroundColor: '#2A2A2A',
+    marginRight: 10,
+  },
+  modalBtnSave: {
+    backgroundColor: COLORS.xboxGreen,
+    marginLeft: 10,
+  },
+  modalBtnTextCancel: {
+    color: COLORS.textSecondary,
+    fontWeight: 'bold',
+  },
+  modalBtnTextSave: {
+    color: COLORS.white,
+    fontWeight: 'bold',
   },
 });
