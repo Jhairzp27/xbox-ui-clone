@@ -122,7 +122,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userData }) 
       {/* 3. Featured Card (Assassin's Creed IV) matching Screenshot 1 */}
       <View style={styles.featuredContainer}>
         <Image
-          source={{ uri: 'https://shared.akamai.steamstatic.com/store_images_shared/app/242050/header.jpg' }}
+          source={require('../assets/ac_black_flag_header.jpg')}
           style={styles.featuredImage}
         />
         <View style={styles.featuredOverlay}>
@@ -176,7 +176,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, userData }) 
           {OFFICIAL_PUBLISHERS.map(pub => (
             <View key={pub.id} style={styles.publisherCircleContainer}>
               <View style={styles.publisherAvatarWrapper}>
-                <Image source={{ uri: pub.avatarUrl }} style={styles.publisherAvatar} />
+                <Image 
+                  source={typeof pub.avatarUrl === 'string' ? { uri: pub.avatarUrl } : pub.avatarUrl} 
+                  style={styles.publisherAvatar} 
+                />
                 {pub.verified && (
                   <View style={styles.verifiedBadge}>
                     <Text style={styles.verifiedCheck}>✓</Text>

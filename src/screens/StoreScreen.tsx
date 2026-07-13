@@ -44,7 +44,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ userData }) => {
       {/* Featured Banner matching Screenshot 4 */}
       <View style={styles.featuredContainer}>
         <Image
-          source={{ uri: 'https://shared.akamai.steamstatic.com/store_images_shared/app/242050/header.jpg' }}
+          source={require('../assets/ac_black_flag_header.jpg')}
           style={styles.featuredImage}
         />
         <View style={styles.featuredOverlay}>

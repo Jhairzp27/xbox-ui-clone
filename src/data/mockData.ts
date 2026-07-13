@@ -1,7 +1,7 @@
 export interface Game {
   id: string;
   title: string;
-  coverUrl: string;
+  coverUrl: any; // Supports both remote URIs (string) and local require references (number)
   publisher: string;
   size?: string;
   isGamePass: boolean;
@@ -41,7 +41,7 @@ export interface ChatMessage {
 export interface OfficialPostGame {
   id: string;
   name: string;
-  avatarUrl: string;
+  avatarUrl: any;
   verified: boolean;
 }
 
@@ -58,12 +58,12 @@ export const USER_PROFILE = {
 };
 
 // Games Data matching Screenshot 1, 2, 4, 5
-// Image URLs updated to official high-speed Akamai Steam CDN images for maximum loading reliability on Android
+// Image URLs updated to local assets to guarantee loading on all mobile networks and Android devices
 export const GAMES_DATA: Game[] = [
   {
     id: '1',
     title: 'AC Black Flag Resynced',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/242050/library_600x900.jpg',
+    coverUrl: require('../assets/ac_black_flag.jpg'),
     publisher: 'Ubisoft',
     size: '42.1 GB',
     isGamePass: false,
@@ -73,7 +73,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: '2',
     title: 'UFC 4',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/2669320/library_600x900.jpg', // FC 25 image as high fidelity placeholder
+    coverUrl: require('../assets/ufc_4.jpg'),
     publisher: 'EA Sports',
     size: '34.8 GB',
     isGamePass: false,
@@ -82,7 +82,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: '3',
     title: 'EA SPORTS FC 26',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/2669320/library_600x900.jpg',
+    coverUrl: require('../assets/fc_26.jpg'),
     publisher: 'EA Sports',
     size: '48.9 GB',
     isGamePass: false,
@@ -91,7 +91,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: '4',
     title: 'Minecraft',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/1132740/library_600x900.jpg', // Minecraft Dungeons high resolution Steam art
+    coverUrl: require('../assets/minecraft.jpg'),
     publisher: 'Mojang Studios',
     size: '1.2 GB',
     isGamePass: true,
@@ -100,7 +100,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: '5',
     title: 'Red Dead Redemption 2',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/1174180/library_600x900.jpg',
+    coverUrl: require('../assets/red_dead_2.jpg'),
     publisher: 'Rockstar Games',
     size: '119.5 GB',
     isGamePass: false,
@@ -110,7 +110,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: '6',
     title: 'Fortnite',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/1172470/library_600x900.jpg', // Apex Legends high resolution Steam art
+    coverUrl: require('../assets/fortnite.jpg'),
     publisher: 'Epic Games',
     size: '42.3 GB',
     isGamePass: true,
@@ -120,7 +120,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: '7',
     title: 'Roblox',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/4000/library_600x900.jpg', // Garry's Mod high resolution Steam art
+    coverUrl: require('../assets/roblox.jpg'),
     publisher: 'Roblox Corporation',
     size: '0.4 GB',
     isGamePass: false,
@@ -134,7 +134,7 @@ export const STORE_DEALS_DATA: Game[] = [
   {
     id: 'd1',
     title: 'Dead Island',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/1023240/library_600x900.jpg', // Dead Island 2
+    coverUrl: require('../assets/dead_island.jpg'),
     publisher: 'Deep Silver',
     isGamePass: false,
     categories: ['Action', 'RPG'],
@@ -147,7 +147,7 @@ export const STORE_DEALS_DATA: Game[] = [
   {
     id: 'd2',
     title: 'Code Vein II',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/678960/library_600x900.jpg', // Code Vein
+    coverUrl: require('../assets/code_vein.jpg'),
     publisher: 'Bandai Namco',
     isGamePass: false,
     categories: ['RPG', 'Action'],
@@ -159,7 +159,7 @@ export const STORE_DEALS_DATA: Game[] = [
   {
     id: 'd3',
     title: 'EA SPORTS FC 26',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/2669320/library_600x900.jpg',
+    coverUrl: require('../assets/fc_26.jpg'),
     publisher: 'EA Sports',
     isGamePass: true,
     categories: ['Sports'],
@@ -175,7 +175,7 @@ export const STORE_NEW_DATA: Game[] = [
   {
     id: 'n1',
     title: 'D.U.M.B. & D.U.M.B.E.R. DUCKS',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/312530/library_600x900.jpg', // Duck Game
+    coverUrl: require('../assets/duck_game.jpg'),
     publisher: 'Indie Devs',
     isGamePass: false,
     categories: ['Shooter'],
@@ -186,7 +186,7 @@ export const STORE_NEW_DATA: Game[] = [
   {
     id: 'n2',
     title: 'Welcome to Kowloon',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/739630/library_600x900.jpg', // Horror game
+    coverUrl: require('../assets/kowloon.jpg'),
     publisher: 'Horror Studio',
     isGamePass: false,
     categories: ['Horror'],
@@ -196,7 +196,7 @@ export const STORE_NEW_DATA: Game[] = [
   {
     id: 'n3',
     title: 'Echoes of Aincrad',
-    coverUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/1049890/library_600x900.jpg', // JRPG
+    coverUrl: require('../assets/aincrad.jpg'),
     publisher: 'RPG Group',
     isGamePass: false,
     categories: ['Anime', 'RPG'],
@@ -293,13 +293,13 @@ export const OFFICIAL_PUBLISHERS: OfficialPostGame[] = [
   {
     id: 'p1',
     name: 'Minecraft',
-    avatarUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/1132740/header.jpg', // Minecraft Dungeons Header
+    avatarUrl: require('../assets/minecraft_header.jpg'),
     verified: true,
   },
   {
     id: 'p2',
     name: 'EA SPORTS',
-    avatarUrl: 'https://shared.akamai.steamstatic.com/store_images_shared/app/2669320/header.jpg', // EA FC 25 Header
+    avatarUrl: require('../assets/ea_sports_header.jpg'),
     verified: true,
   }
 ];

@@ -78,7 +78,7 @@ export const GameCardItem: React.FC<GameCardItemProps> = ({
         {/* Cover Art Container */}
         <View style={[styles.imageContainer, { width: width, height: height }]}>
           <Image
-            source={{ uri: game.coverUrl }}
+            source={typeof game.coverUrl === 'string' ? { uri: game.coverUrl } : game.coverUrl}
             style={styles.coverImage}
             resizeMode="cover"
           />

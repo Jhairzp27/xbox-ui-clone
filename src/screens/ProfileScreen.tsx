@@ -92,7 +92,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={styles.gameCoverRow}>
               {/* EA FC 26 Cover representation */}
               <Image
-                source={{ uri: 'https://shared.akamai.steamstatic.com/store_images_shared/app/2669320/library_600x900.jpg' }}
+                source={require('../assets/fc_26.jpg')}
                 style={styles.achievementGameCover}
               />
               <View style={styles.achievementTextInfo}>
