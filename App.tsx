@@ -81,7 +81,7 @@ function AppContent() {
         >
           <View style={styles.iconBadgeWrapper}>
             <Image
-              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/group.png' }}
+              source={{ uri: 'https://img.icons8.com/ios-filled/100/ffffff/conference-call.png' }}
               style={[
                 styles.tabIcon,
                 { tintColor: activeTab === 'Social' ? COLORS.xboxGreen : COLORS.textSecondary },

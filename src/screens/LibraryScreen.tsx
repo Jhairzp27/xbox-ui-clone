@@ -46,7 +46,10 @@ export const LibraryScreen: React.FC = () => {
       onLongPress={() => setSelectedGameForInvite(item)}
       onPress={() => setSelectedGameForInvite(item)}
     >
-      <Image source={{ uri: item.coverUrl }} style={styles.coverImage} />
+      <Image 
+        source={typeof item.coverUrl === 'string' ? { uri: item.coverUrl } : item.coverUrl} 
+        style={styles.coverImage} 
+      />
       <View style={styles.gameInfo}>
         <Text style={styles.gameTitle}>{item.title}</Text>
         <Text style={styles.gameDetail}>{item.publisher} • {item.size}</Text>
